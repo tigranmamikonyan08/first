@@ -1,0 +1,137 @@
+ .my-container {
+      width: 80%; /* 80% of its parent's width */
+      max-width: 1200px; /* Never wider than 1200px */
+      margin: 0 auto; /* Center the container horizontally */
+      padding: 20px;
+    }
+
+section{
+    display: flex;
+    justify-content:right;
+    align-items: center;
+    gap: 50px;
+    height: 97vh;
+}
+
+.controller{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 3px solid;
+    height: 500px;
+    width: 250px;
+    position: relative;
+    overflow-y: scroll;
+
+}
+
+.screen{
+    border: 3px solid;
+    min-height: 700px;
+    width: 1000px;
+    padding: 2px;
+    border: 2px solid black;
+    margin: 10px;
+    overflow-y: scroll;
+    max-height: 90vh
+}
+
+.add{
+    position: absolute;
+    border: 2px solid black;
+    border-radius: 50%;
+    right: 0px;
+    margin: 5px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.add:hover{
+    background-color: green;
+    color: white;
+    border-color: green;
+}
+
+.controllerDiv{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 30px;
+    margin: 10px;
+    border: 2px solid black;
+}
+
+.controllerDiv2{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 30px;
+    margin: 10px;
+    border: 2px solid black;
+}
+
+.controllerDiv div {
+    position: absolute;
+}
+
+.controllerDiv:hover {
+    background-color: gray !important;
+    cursor: pointer;
+}
+
+.divType{
+    height: 300px;
+    width: 150px;
+    border: 2px solid black;
+    position: absolute;
+    left: 30px;
+}
+
+.divType li {
+    cursor: pointer;
+}
+
+.divTypeActive{
+    opacity: 1 !important;
+    left: 30px !important;
+
+}
+
+.removeBtn{
+    color: red;
+    font-size: 21px;
+    position: absolute;
+    right: 5px;
+    cursor: pointer;
+}
+
+.newDivli{
+    list-style-type: none;
+}
+
+.newDivli > li:hover{
+    color: gray;
+}
+
+.screenDivStyle{
+    border: 2px solid black;
+    padding: 5px;
+    margin: 5px;
+    overflow: hidden;
+    width: fit-content;
+    max-width: 300px;
+    height: fit-content;
+    white-space: pre-line;
+}
+
+img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;	
+}

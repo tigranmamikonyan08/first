@@ -1,297 +1,337 @@
-const section = document.getElementsByTagName('section')[0]
+const container = document.querySelector('.container')
 const controller = document.querySelector('.controller')
 const screen = document.querySelector('.screen')
-const addButton = document.querySelector('.add')
-const divCountArr = []
-const screenDivs = []
-const miniDivs = []
+const allControllerDivs = []
+const allScreenDivs = []
 
-class DivType{
-    constructor(name){
-        this.name = name
+//funkciayov h2 cher linum
+// function divTypeMenu(){
+//     const div = document.createElement('div')
+//     div.classList.add('divTypeMenu')
+//     const h2 = document.createElement('h2')
+//     controller.addEventListener('click',(e)=>{
+//         if (true) {
+//             const h2Name = e.target.textContent
+//             h2.textContent = h2Name 
+            
+//         }
+//     })
+//     const addTxt = document.createElement('p')
+//     addTxt.textContent = 'Add Txt'
+//     const addChildDiv = document.createElement('p')
+//     addChildDiv.textContent = 'Add Div'
+
+//     div.append(h2)
+//     div.append(addTxt)
+//     div.append(addChildDiv)
+//     container.append(div)
+
+//     return div
+// }
+
+class DivTypeMenu{
+    constructor(h2Name,id){
+        this.h2Name = h2Name
+        this.id = id
     }
 
-    addDivType(){
+    addDivTypeMenu(){
         const div = document.createElement('div')
+        div.classList.add('divTypeMenu')
+        div.dataset.id = this.id
         const h2 = document.createElement('h2')
-        const ul = document.createElement('ul')
-        const li1 = document.createElement('li')
-        const li2 = document.createElement('li')
-        const li3 = document.createElement('li')
-        const removeBtn = document.createElement('div')
-        removeBtn.textContent = 'X'
-        removeBtn.classList.add('removeBtn')
-        ul.classList.add('newDivli')
-        li1.textContent = 'Add txt'
-        li2.textContent = 'Add img'
-        li3.textContent = 'Add div'
-        div.classList.add('divType')
-        h2.textContent = this.name
-        h2.style.textAlign = 'center'
-        li2.style.margin = '10px 0 10px 0'
+        h2.textContent = this.h2Name
+        const addTxt = document.createElement('p')
+        addTxt.textContent = 'Add Txt'
+        addTxt.style.cursor = 'pointer'
+        const addChildDiv = document.createElement('p')
+        addChildDiv.textContent = 'Add Div'
+        addChildDiv.style.cursor = 'pointer'
+        const xBtn = document.createElement('i')
+        xBtn.classList.add('fa-solid', 'fa-xmark')
 
-        div.append(removeBtn)
-        ul.append(li1,li2,li3)
         div.append(h2)
-        div.append(ul)
-        section.append(div)
+        div.append(addTxt)
+        div.append(addChildDiv)
+        div.prepend(xBtn)
+        container.append(div)
 
         return div
     }
 }
 
-class Div{
-    constructor(count){
-        this.name = `Div `
-        this.count = count
+function addDiv() {
+    const div = document.createElement('div')
+    div.classList.add('controllerDiv')
+    div.dataset.id = Math.random()
+    const box = document.createElement('div')
+    box.textContent = `Div ${allControllerDivs.length + 1}`
+    box.classList.add('box')
 
-        const arr = JSON.parse(localStorage.getItem('controllerDivs')) || []
-        const id = arr.find( (el)=>{
-            return el.count === this.count
+    allControllerDivs.push({
+        name: box.textContent,
+        type: 'box',
+        id: div.dataset.id,
+        children: []
+    })
+    
+    div.append(box)
+    controller.append(div)
+    addtoScreen(box.textContent,div.dataset.id)
+    
+    const currentScreenDiv = allScreenDivs.find((el)=>{
+        return el.id === div.dataset.id
+    })
+
+    if (currentScreenDiv) {
+        const screenDiv = document.createElement('div')
+        const h2 = document.createElement('h2')
+        screenDiv.dataset.id =div.dataset.id
+        screenDiv.classList.add('screenDiv')
+        h2.textContent = currentScreenDiv.name
+        screenDiv.append(h2)
+        screen.append(screenDiv) 
+    }
+    
+    
+    localStorage.setItem('divs',JSON.stringify(allControllerDivs))
+    localStorage.setItem('screenDivs', JSON.stringify(allScreenDivs))
+
+    return div
+}
+
+function addToController(type){
+    if (type.textContent === 'Add Txt') {
+        const txtName = prompt('Add txt')
+        const p = document.createElement('p')
+        p.textContent = txtName
+        // const currentDivObj = allControllerDivs.find((obj)=>{
+        //     return obj.id === type.parentElement.dataset.id
+        // })
+        // currentDivObj.children.push({
+        //     name: txtName,
+        //     type: 'txt',
+        //     id: type.parentElement.dataset.id
+        // })
+
+        const res = deepFind(allControllerDivs, item => item.id === type.parentElement.dataset.id)
+
+        res.children.push({
+            name: txtName,
+            type: 'txt',
+            id: type.parentElement.dataset.id,
         })
 
-        this.id = id?.id || Math.random().toString()
+        // const screenCurrentObj = allScreenDivs.find((obj)=>{
+        //     return obj.id === currentDivObj.id
+        // })
+
+        // screenCurrentObj?.pTags.push({
+        //     name: txtName
+        // })
+
+        // console.log(screenCurrentObj);
+         
+        // const currentScreenDiv = screen.querySelector(`[data-id = '${screenCurrentObj.id}']`)
+        // const screenP = document.createElement('p')
+        // screenP.textContent = txtName
+        // currentScreenDiv.append(screenP)
+        
+        const currentDiv = controller.querySelector(`[data-id = '${type.parentElement.dataset.id}']`)
+        currentDiv.append(p)
+        localStorage.setItem('divs',JSON.stringify(allControllerDivs))
+        localStorage.setItem('screenDivs', JSON.stringify(allScreenDivs))
     }
 
-    
-    
-    createDiv(){
+    if (type.textContent === 'Add Div'){
+        const divTxt = prompt('add div')
         const div = document.createElement('div')
-        div.textContent = this.name + this.count
         div.classList.add('controllerDiv')
-        div.dataset.id = this.id
-        controller.append(div)
+        div.dataset.id = Math.random()
+        const box = document.createElement('div')
+        box.textContent = divTxt
+        box.classList.add('box')
+
+        // const currentDivObj = allControllerDivs.find((obj)=>{
+        //     return obj.id === type.parentElement.dataset.id
+        // })
+
+
+        // if (currentDivObj) {
+        //     currentDivObj.children.push({
+        //     name: divTxt,
+        //     type: 'box',
+        //     id: div.dataset.id,
+        //     children: []
+            
+        // })
+        // }
+
         
 
-        if(div?.previousElementSibling?.classList.contains('controllerDiv') && div.previousElementSibling.children.length > 0){
-            const lastEl = div.previousElementSibling.children[div.previousElementSibling.children.length - 1]  
-            div.style.marginTop = `${lastEl?.offsetTop}px`
-        }
+        let res = deepFind(allControllerDivs, item=> item.id === type.parentElement.dataset.id)
+
+        res.children.push({
+             name: divTxt,
+            type: 'box',
+            id: div.dataset.id,
+            children: []
+        })
+        console.log(res);
+        
+        
+
+        const currentDiv = controller.querySelector(`[data-id = '${type.parentElement.dataset.id}']`)
+        div.append(box)
+        currentDiv.append(div)
+        localStorage.setItem('divs',JSON.stringify(allControllerDivs))
+
+        
+        
+        
 
 
-        return div
+        // ---------------------------------------------------------------------
+
+
+        // const screenCurrentObj = allScreenDivs.find((obj)=>{
+        //     return obj.id === currentDivObj.id
+        // })
+
+        // screenCurrentObj?.pTags.push({
+        //     name: divName
+        // })
+
+        // console.log(screenCurrentObj);
+        
+        
+        // const currentScreenDiv = screen.querySelector(`[data-id = '${screenCurrentObj.id}']`)
+        // const screenDiv = document.createElement('div')
+        // screenDiv.textContent = divName
+        // currentScreenDiv.append(screenDiv)
+        
+        // const currentDiv = controller.querySelector(`[data-id = '${type.parentElement.dataset.id}']`)
+        // currentDiv.append(box)
+        // localStorage.setItem('divs',JSON.stringify(allControllerDivs))
+        // localStorage.setItem('screenDivs', JSON.stringify(allScreenDivs))
     }
+
 }
 
+function deepFind(arr, predicate) {
+    for (let i = 0; i < arr.length; i++) {    
+        const item = arr[i];
+        if (predicate(item)) {   
+            return item;
+        }
+
+        if (item.children && item.children.length > 0) {
+            const found = deepFind(item.children, predicate);
+            if (found) return found;    
+        }    
+    }
     
-
-class ScreenDiv{
-    constructor(name,info,id){
-        this.name = name
-        this.info = `${info}`
-        this.id = id
-    }
-
-    screenDivAdd(){
-        const div = document.createElement('div')
-        div.classList.add('screenDivStyle')
-        div.dataset.id = this.id
-        const h2 = document.createElement('h2')
-        h2.textContent = this.name
-        const p = document.createElement('p')
-        const img = document.createElement('img')
-        // img.src = this.info
-        p.textContent = this.info
-        if (p.textContent.startsWith('https://')) {
-            div.append(img)
-            img.src = this.info
-        }
-
-        screen.append(div)
-        div.append(h2)
-        div.append(p)
-
-        return div
-    }
+    return undefined;
 }
 
-class MiniDivs{
-    constructor(txt,presentDivCount,type,id){
-        this.txt = txt
-        this.presentDivCount = presentDivCount
-        this.type = type
-        this.id = id
-    }
-
-    createMiniDiv(){
-        const div = document.createElement('div')
-        div.textContent = this.txt
-        div.dataset.id = this.id
-        div.style.width = '50px'
-
-        
-        console.log(this.presentDivCount);
-        
-
-        if(this.presentDivCount === 0){
-            div.style.marginLeft = `${(this.presentDivCount + 1)* 120}px`
-            div.style.marginTop = `${(this.presentDivCount + 1) * 70}px`
-        }else{
-            div.style.marginLeft = `120px`
-            div.style.marginTop = `${(this.presentDivCount + 1) * 70}px`
-        }
-
-        if (this.type === 'div') {
-            div.classList.add('controllerDiv2')
-            div.style.marginLeft = `${(this.presentDivCount + 1)* 120}px`
-            div.style.marginTop = `${(this.presentDivCount + 1) * 70}px`
-        }
-
-        return div
-    }
-}
-
-if (localStorage.getItem('controllerDivs')) {
-    JSON.parse(localStorage.getItem('controllerDivs')).forEach((obj)=>{
-        divCountArr.push(obj)
-        const newDiv = new Div(obj.count)
-        newDiv.createDiv()
+function addtoScreen(h2Name,id,children = []){
+    allScreenDivs.push({
+        name: h2Name,
+        id: id,
+        pTags: children
     })
+    
 }
+
 
 if (localStorage.getItem('screenDivs')) {
-    JSON.parse(localStorage.getItem('screenDivs')).forEach((obj)=>{
-        screenDivs.push(obj)
-        const newScreenDiv = new ScreenDiv(obj.name,obj.info,obj.id)
-        newScreenDiv.screenDivAdd()
-        
+    const storageScreenDivs = JSON.parse(localStorage.getItem('screenDivs'))
+    
+    storageScreenDivs.forEach((obj)=>{
+        const div = document.createElement('div')
+        const h2 = document.createElement('h2')
+        div.dataset.id = obj.id
+        div.classList.add('screenDiv')
+        h2.textContent = obj.name
+        div.append(h2)
+        screen.append(div)
+
+        obj.pTags.forEach((p)=>{
+            const txt = document.createElement('p')
+            txt.textContent = p.name
+            div.append(txt)
+        })
+
+        allScreenDivs.push(obj)
     })
+    
 }
 
-if (localStorage.getItem('miniDivs')) {
-    let miniDivsArr = JSON.parse(localStorage.getItem('miniDivs'))
-    
-    controller.childNodes.forEach((el)=>{
-        if (el.classList?.contains('controllerDiv')) {
-                miniDivsArr.forEach((obj)=>{
-                if (obj.id === el.dataset.id) {
-                    let miniDiv = new MiniDivs(obj.txt,obj.presentDivCount,obj.type,obj.id)
-                    miniDivs.push(obj)
-                    el.append(miniDiv.createMiniDiv())
+if (localStorage.getItem('divs')) {
+    const storageDivs = JSON.parse(localStorage.getItem('divs'))
+    storageDivs.forEach(obj => {
+        const div = document.createElement('div')
+        div.classList.add('controllerDiv')
+        div.dataset.id = obj.id
+        const box = document.createElement('div')
+        box.textContent = obj.name
+        box.classList.add('box')
+  
+        div.append(box)
+        controller.append(div)
+
+        if (obj.children.length) {
+            obj.children.forEach((childObj)=>{
+                if(childObj.type === 'txt') {
+                    const p = document.createElement('p')
+                    p.textContent = childObj.name
+                    div.append(p)
+                }
+                if (childObj.type === 'box') {
+                    const childDiv = document.createElement('div')
+                    childDiv.classList.add('controllerDiv')
+                    const childBox = document.createElement('div')
+                    childBox.textContent = childObj.name
+                    childBox.classList.add('box')
+                    
+                    childDiv.append(childBox)
+                    div.append(childDiv) 
+                    console.log(div);
+                    
+                }
+            })     
+        }
+        allControllerDivs.push(obj)
+    });
+}
+
+
+let hasDivTypeMenu = false
+controller.addEventListener('click', (e)=>{
+    if (e.target.localName === 'i') {
+        addDiv()
+        
+    }
+    if (e.target.classList.contains('box')) {
+        if (!hasDivTypeMenu) {
+            const addDivTypeMenu = new DivTypeMenu(`${e.target.childNodes[0].textContent} add`,e.target.parentElement.dataset.id)
+            let typeMenuAdd = addDivTypeMenu.addDivTypeMenu()
+            controller.style.opacity = '0.3'
+            hasDivTypeMenu = true
+            typeMenuAdd.addEventListener('click',(e)=>{
+                if (e.target.localName === 'i'){
+                    e.target.parentElement.remove()
+                    controller.style.opacity = '1'
+                    hasDivTypeMenu = false
+                }
+                if (e.target.localName === 'p'){
+                    addToController(e.target)
+                    e.target.parentElement.remove()
+                    hasDivTypeMenu = false
+                    controller.style.opacity = '1'
                 }
             })
         }
-    });   
-}
-
-controller.addEventListener('click', (e)=>{ 
-    if (divCountArr.length >= 27 && e.target.classList.contains('add')) {
-        alert('End')
-    }
-    if (divCountArr.length < 27 && e.target.classList.contains('add')) {
-        const controllerDiv = new Div(divCountArr.length+1)
-        
-        controllerDiv.createDiv()
-        divCountArr.push(controllerDiv)
-        
-        localStorage.setItem('controllerDivs', JSON.stringify(divCountArr))
-    }
-    if (e.target.classList.contains('controllerDiv')){
-        const divName = e.target.firstChild.textContent
-        
-        const divType = new DivType(divName +' add')
-        let newDiv = divType.addDivType()
-        let presentDiv = e.target   
-        controller.style.opacity = '0.5'
-        newDiv.addEventListener('click',(e)=>{
-            if (e.target.classList.contains('removeBtn')) {
-                section.lastElementChild.remove()
-                presentDiv.style.backgroundColor = 'white'
-                controller.style.pointerEvents = 'all'
-                controller.style.opacity = '1'
-            }
-            if (e.target.textContent === 'Add txt') {
-                let txt = prompt('type txt')
-                if (txt) {
-                    controller.style.opacity = '1'
-                    controller.style.pointerEvents = 'all'
-                    section.lastElementChild.remove()
-
-                    let k = screenDivs.find((el)=>{
-                        return el.id === presentDiv.dataset.id
-                    })
-                    
-                    if (k) {
-                        k.info += `\n${txt}`
-                        screen.childNodes.forEach((el)=>{
-                            if (el.dataset.id === k.id) {
-                                el.lastElementChild.textContent += `\n${txt}`
-                            }
-                        })
-                    }else{
-                        let screenDiv = new ScreenDiv(divName,`${txt}`,presentDiv.dataset.id)
-                        screenDiv.screenDivAdd()
-                        screenDivs.push(screenDiv)
-                    }
-                    localStorage.setItem('screenDivs', JSON.stringify(screenDivs))
-
-                    const miniDiv = new MiniDivs(txt,presentDiv.childElementCount,'txt',presentDiv.dataset.id)
-                    presentDiv.append(miniDiv.createMiniDiv())
-                    miniDivs.push(miniDiv)
-                    localStorage.setItem('miniDivs', JSON.stringify(miniDivs))                    
-                }
-            }
-            if (e.target.textContent === 'Add img') {
-                let url = prompt('type URL')
-                if(url.startsWith('https://')){
-                    presentDiv.style.backgroundColor = 'gray'
-                    presentDiv.style.pointerEvents = 'none'
-                    controller.style.opacity = '1'
-                    controller.style.pointerEvents = 'all'
-                    section.lastElementChild.remove()
-                    let screenDivImg = new ScreenDiv(divName, url)
-                    console.log(url);
-                    
-                    screenDivImg.screenDivAdd() 
-                    console.log(screenDivImg.info);
-                    screenDivs.push(screenDivImg)
-                    console.log(screenDivs);
-                    console.log(divCountArr);
-                    
-                    
-                    localStorage.setItem('screenDivs', JSON.stringify(screenDivs))
-                }else{
-                    alert('type URL')
-                }
-            }
-            if (e.target.textContent === 'Add div') {
-                let divTxt = prompt('type div txt')
-                if (divTxt) {
-                    controller.style.opacity = '1'
-                    controller.style.pointerEvents = 'all'
-                    section.lastElementChild.remove()
-                    let k = screenDivs.find((el)=>{
-                        return el.id === presentDiv.dataset.id
-                    })
-                    
-                    if (k) {
-                        k.info += `\n${divTxt}`
-                        screen.childNodes.forEach((el)=>{
-                            if (el.dataset.id === k.id) {
-                                el.lastElementChild.textContent += `\n${divTxt}`
-                            }
-                        })
-                    }else{
-                        let screenDiv = new ScreenDiv(divName,`${divTxt}`,presentDiv.dataset.id)
-                        screenDiv.screenDivAdd()
-                        screenDivs.push(screenDiv)
-                    }
-
-                    const miniDiv = new MiniDivs(divTxt,presentDiv.childElementCount,'div',presentDiv.dataset.id)
-                    presentDiv.append(miniDiv.createMiniDiv())
-                    
-                    localStorage.setItem('screenDivs', JSON.stringify(screenDivs))
-                    miniDivs.push(miniDiv)
-                    localStorage.setItem('miniDivs', JSON.stringify(miniDivs))
-
-
-                }
-                
-            }
-            
-        })
-        
     }
 })
-
 

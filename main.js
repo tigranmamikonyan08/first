@@ -1,21 +1,14 @@
 const container = document.querySelector('.container')
 const controller = document.querySelector('.controller')
 const screen = document.querySelector('.screen')
-const allControllerDivs = []
-const allScreenDivs = []
+let itemsData = []
 
-class DivTypeMenu{
-    constructor(h2Name,id){
-        this.h2Name = h2Name
-        this.id = id
-    }
-
-    addDivTypeMenu(){
+function DivTypeMenu(h2Name,id){
         const div = document.createElement('div')
         div.classList.add('divTypeMenu')
-        div.dataset.id = this.id
+        div.dataset.id = id
         const h2 = document.createElement('h2')
-        h2.textContent = this.h2Name
+        h2.textContent = h2Name
         const addTxt = document.createElement('p')
         addTxt.textContent = 'Add Txt'
         addTxt.style.cursor = 'pointer'
@@ -32,7 +25,6 @@ class DivTypeMenu{
         container.append(div)
 
         return div
-    }
 }
 
 function addDiv() {
@@ -40,10 +32,10 @@ function addDiv() {
     div.classList.add('controllerDiv', 'first')
     div.dataset.id = Math.random()
     const box = document.createElement('div')
-    box.textContent = `Div ${allControllerDivs.length + 1}`
+    box.textContent = `Div ${itemsData.length + 1}`
     box.classList.add('box')
 
-    allControllerDivs.push({
+    itemsData.push({
         name: box.textContent,
         type: 'box',
         id: div.dataset.id,
@@ -54,7 +46,7 @@ function addDiv() {
     controller.append(div)
     addToScreen(box,div.dataset.id)
 
-    localStorage.setItem('divs',JSON.stringify(allControllerDivs))
+    localStorage.setItem('divs',JSON.stringify(itemsData))
     return div
 }
 
@@ -64,20 +56,21 @@ function addToController(type){
         const p = document.createElement('p')
         p.textContent = txtName
 
-        const res = deepFind(allControllerDivs, item => item.id === type.parentElement.dataset.id)
+        if (txtName) {
+            const res = deepFind(itemsData, item => item.id === type.parentElement.dataset.id)
 
-        res.children.push({
-            name: txtName,
-            type: 'txt',
-            // id: type.parentElement.dataset.id,
-        })
+            res.children.push({
+                name: txtName,
+                type: 'txt',
+                // id: type.parentElement.dataset.id,
+            })
 
-        
-        const currentDiv = controller.querySelector(`[data-id = '${type.parentElement.dataset.id}']`)
-        currentDiv.append(p)
-        addToScreen(p,'',res)
-        localStorage.setItem('divs',JSON.stringify(allControllerDivs))
-        localStorage.setItem('screenDivs', JSON.stringify(allScreenDivs))
+            
+            const currentDiv = controller.querySelector(`[data-id = '${type.parentElement.dataset.id}']`)
+            currentDiv.append(p)
+            addToScreen(p,'',res)
+            localStorage.setItem('divs',JSON.stringify(itemsData))
+        }
     }
 
     if (type.textContent === 'Add Div'){
@@ -89,30 +82,25 @@ function addToController(type){
         box.textContent = divTxt
         box.classList.add('box')
 
-        
-        let res = deepFind(allControllerDivs, item => item.id === type.parentElement.dataset.id)
-        
-        console.log(res);
-        
-        
-        res.children.push({
-            name: divTxt,
-            type: 'box',
-            id: div.dataset.id,
-            children: []
-        })        
-        
+        if (divTxt) {
+            let res = deepFind(itemsData, item => item.id === type.parentElement.dataset.id)
+            
+            res.children.push({
+                name: divTxt,
+                type: 'box',
+                id: div.dataset.id,
+                children: []
+            })        
 
-        const currentDiv = controller.querySelector(`[data-id = '${type.parentElement.dataset.id}']`)
+            const currentDiv = controller.querySelector(`[data-id = '${type.parentElement.dataset.id}']`)
+            
+            div.append(box)
+            currentDiv.append(div)
+            addToScreen(box,div.dataset.id,res)
 
-        
-        div.append(box)
-        currentDiv.append(div)
-        addToScreen(box,div.dataset.id,res)
-
-        localStorage.setItem('divs',JSON.stringify(allControllerDivs))
+            localStorage.setItem('divs',JSON.stringify(itemsData))
+        }
     }
-
 }
 
 function deepFind(arr, predicate) {
@@ -131,9 +119,7 @@ function deepFind(arr, predicate) {
     return undefined;
 }
 
-function addToScreen(item,id = 'null',parentEl){
-
-    
+function addToScreen(item,id,parentEl){
 
     if (item.localName === 'div') {
         const wrapper = document.createElement('div')
@@ -142,32 +128,22 @@ function addToScreen(item,id = 'null',parentEl){
         const h2 = document.createElement('h2')
         h2.textContent = item.textContent
     
-        let res = deepFind(allScreenDivs, item => item.id === parentEl?.id)
+        let res = deepFind(itemsData, item => item.id === parentEl?.id)
 
-        console.log(res);
+        let currentDiv = screen.querySelector(`[data-id = '${res?.id}']`)
         
+        console.log(res);
+        console.log(currentDiv);
 
-        if (res?.hasOwnProperty('id')) {
-            res.children.push({
-            name: item.textContent,
-            id: id,
-            children: []
-        })
-            let currentDiv = screen.querySelector(`[data-id = '${res?.id}']`)
+        if (currentDiv && res && currentDiv.dataset.id === res.id) {
             wrapper.append(h2)
             currentDiv.append(wrapper)
-            localStorage.setItem('screenDivs', JSON.stringify(allScreenDivs))
             return
-    }else{
-        allScreenDivs.push({
-        name: item.textContent,
-        id:id,
-        children: []
-    })
-    }
+        }
+        
+        wrapper.append(h2)
+        screen.append(wrapper)
 
-    wrapper.append(h2)
-    screen.append(wrapper)
     }
     if (item.localName === 'p') {
         const p = document.createElement('p')
@@ -175,23 +151,15 @@ function addToScreen(item,id = 'null',parentEl){
 
         console.log(parentEl);
         
-        let res = deepFind(allScreenDivs, item=> item.id === parentEl.id)
-
-        res.children.push({
-            name: item.textContent
-        })
+        let res = deepFind(itemsData, item=> item.id === parentEl.id)
         
         let currentDiv = screen.querySelector(`[data-id = '${res.id}']`)
         
         currentDiv.append(p)
-        
-        
-    }
-    
-    localStorage.setItem('screenDivs', JSON.stringify(allScreenDivs))
-    
-    
 
+        console.log(res);
+        console.log(currentDiv);
+    }    
 }
 
 
@@ -239,6 +207,9 @@ function renderScreenElement(obj, parentEl){
     const p = document.createElement('p')
     p.textContent = obj.name
 
+    console.log(obj);
+    
+
     if (obj.hasOwnProperty('id')) {
         parentEl.append(wrapper)
     }else{
@@ -255,35 +226,36 @@ function renderScreenElement(obj, parentEl){
 
 if (localStorage.getItem('divs')) {
     const storageDivs = JSON.parse(localStorage.getItem('divs'));
-
     storageDivs.forEach(obj => {
         renderElement(obj, controller);
-        allControllerDivs.push(obj);
     });
-}
-
-if (localStorage.getItem('screenDivs')) {
-    const storageScreenDivs = JSON.parse(localStorage.getItem('screenDivs'))
-
-    storageScreenDivs.forEach(obj=>{
-        renderScreenElement(obj,screen)
-        allScreenDivs.push(obj)
-    })
+    storageDivs.forEach(obj => {
+        renderScreenElement(obj, screen);
+        itemsData.push(obj)
+    });
 }
 
 
 let hasDivTypeMenu = false
 controller.addEventListener('click', (e)=>{
-    if (e.target.localName === 'i') {
+    if (e.target.localName === 'i' && e.target.classList.contains('fa-circle-plus')) {
         addDiv()
+    }
+    if (e.target.localName === 'i' && e.target.classList.contains('fa-trash')) {
+        localStorage.clear()
+        const divs = controller.querySelectorAll('div')
+        const screenDivs = screen.querySelectorAll('div')
+        divs.forEach(div=>div.remove())
+        screenDivs.forEach(div=>div.remove())
+        itemsData = []
     }
     if (e.target.classList.contains('box')) {
         if (!hasDivTypeMenu) {
-            const addDivTypeMenu = new DivTypeMenu(`${e.target.childNodes[0].textContent} add`,e.target.parentElement.dataset.id)
-            let typeMenuAdd = addDivTypeMenu.addDivTypeMenu()
+            DivTypeMenu(`${e.target.childNodes[0].textContent} add`,e.target.parentElement.dataset.id)
             controller.style.opacity = '0.3'
             hasDivTypeMenu = true
-            typeMenuAdd.addEventListener('click',(e)=>{
+            const typeMenu = container.getElementsByClassName('divTypeMenu')[0]
+            typeMenu.addEventListener('click',(e)=>{
                 if (e.target.localName === 'i'){
                     e.target.parentElement.remove()
                     controller.style.opacity = '1'

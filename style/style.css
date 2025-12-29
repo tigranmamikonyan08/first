@@ -19,15 +19,27 @@
     overflow: scroll;
 }
 
-.controller i{
+.controller i:first-child{
     position: absolute;
     cursor: pointer;
-    right: 10px;
+    right: 40px;
     top: 10px;
     font-size: 21px;
 }
-.controller i:hover{
-    color: green;
+.controller i:hover:first-child{
+    color: darkgreen;
+}
+
+.controller i {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+.controller i:hover {
+    color: darkred;
 }
 
 .screen{
@@ -89,7 +101,7 @@
 .screenDiv {
   display: inline-block;
   min-width: 100px;
-  min-height: 100px;
+  /* min-height: 100px; */
 
   padding: 10px;
   margin: 5px;
